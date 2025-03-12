@@ -79,7 +79,7 @@
                 <ColumnDefinition Width="0.1*"/>
             </Grid.ColumnDefinitions>
             <Button Grid.Column="1" Grid.Row="1" Content="%"        Background="#00ADB5" CommandParameter="Inca NU" />
-            <Button Grid.Column="3" Grid.Row="1" Content="CE"       Background="#00ADB5" CommandParameter="Inca NU"/>
+            <Button Grid.Column="3" Grid.Row="1" Content="CE"       Background="#00ADB5" CommandParameter="CE"/>
             <Button Grid.Column="5" Grid.Row="1" Content="C"        Background="#00ADB5" CommandParameter="C"/>
             <Button Grid.Column="7" Grid.Row="1" Content="DELETE"   Background="#00ADB5" CommandParameter="D"/>
 
@@ -105,7 +105,7 @@
 
             <Button Grid.Column="1" Grid.Row="11" Content="+/-"  CommandParameter="INCA NU"/>
             <Button Grid.Column="3" Grid.Row="11" Content="0" CommandParameter="0"/>
-            <Button Grid.Column="5" Grid.Row="11" Content="," CommandParameter="."/>
+            <Button Grid.Column="5" Grid.Row="11" Content="." CommandParameter="."/>
             <Button Grid.Column="7" Grid.Row="11" Content="="       Background="#00ADB5" CommandParameter="="/>
             
             

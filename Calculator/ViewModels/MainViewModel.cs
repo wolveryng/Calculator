@@ -2,14 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
+using System.Globalization;
 
 namespace Calculator.ViewModels
 {
     class MainViewModel : INotifyPropertyChanged
     {
-        #region Properties and Fields
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged(string name)
@@ -57,7 +55,8 @@ namespace Calculator.ViewModels
         private const string DIGITS = "0123456789.";
         private const string OPERATORS = "+-*/=";
 
-        #endregion
+        // Use invariant culture to ensure consistent decimal point handling
+        private static readonly CultureInfo _calculatorCulture = CultureInfo.InvariantCulture;
 
         public MainViewModel()
         {
@@ -66,8 +65,6 @@ namespace Calculator.ViewModels
             _enteredKeys = new List<string>();
             ButtonPressedCommand = new ButtonPressedCommand(this);
         }
-
-        #region Helper Methods
 
         private void UpdateEnteredKeysOnGui()
         {
@@ -135,6 +132,41 @@ namespace Calculator.ViewModels
             ResetCalculator();
         }
 
+        private void ClearEntry()
+        {
+            if (_isResultDisplayed)
+            {
+                Clear();
+                return;
+            }
+
+            string currentExpression = string.Join("", _enteredKeys);
+            int lastOperatorIndex = Math.Max(
+                Math.Max(
+                    currentExpression.LastIndexOf('+'),
+                    currentExpression.LastIndexOf('-')
+                ),
+                Math.Max(
+                    currentExpression.LastIndexOf('*'),
+                    currentExpression.LastIndexOf('/')
+                )
+            );
+
+            if (lastOperatorIndex >= 0)
+            {
+                _enteredKeys.RemoveRange(lastOperatorIndex + 1, _enteredKeys.Count - lastOperatorIndex - 1);
+                UpdateEnteredKeysOnGui();
+
+                Entered_Number = "0";
+
+            }
+            else
+            {
+                Clear();
+            }
+
+            _isFunctionPressed = lastOperatorIndex >= 0;
+        }
         private void ResetCalculator()
         {
             _enteredKeys.Clear();
@@ -148,35 +180,64 @@ namespace Calculator.ViewModels
 
         private void PerformCalculation()
         {
-            if (_isFirstNumberEntered)
+            try
             {
-                _result = Convert.ToDouble(Entered_Number);
-                _isFirstNumberEntered = false;
+                if (_isFirstNumberEntered)
+                {
+                    _result = double.Parse(Entered_Number, _calculatorCulture);
+                    _isFirstNumberEntered = false;
+                }
+                else
+                {
+                    double currentNumber = double.Parse(Entered_Number, _calculatorCulture);
+
+                    switch (_selectedFunction)
+                    {
+                        case "Addition":
+                            _result += currentNumber;
+                            break;
+                        case "Subtraction":
+                            _result -= currentNumber;
+                            break;
+                        case "Multiplication":
+                            _result *= currentNumber;
+                            break;
+                        case "Division":
+                            if (currentNumber != 0)
+                                _result /= currentNumber;
+                            else
+                            {
+                                Entered_Number = "Error";
+                                return;
+                            }
+                            break;
+                    }
+
+                    Entered_Number = FormatResult(_result);
+                }
+            }
+            catch (Exception)
+            {
+                Entered_Number = "Error";
+            }
+        }
+
+        private string FormatResult(double value)
+        {
+            if (value == Math.Floor(value))
+            {
+                return value.ToString("0", _calculatorCulture);
             }
             else
             {
-                double currentNumber = Convert.ToDouble(Entered_Number);
+                string result = value.ToString("G", _calculatorCulture);
 
-                switch (_selectedFunction)
+                if (double.TryParse(result, NumberStyles.Float, _calculatorCulture, out double parsed))
                 {
-                    case "Addition":
-                        _result += currentNumber;
-                        break;
-                    case "Subtraction":
-                        _result -= currentNumber;
-                        break;
-                    case "Multiplication":
-                        _result *= currentNumber;
-                        break;
-                    case "Division":
-                        if (currentNumber != 0) // Prevent division by zero
-                            _result /= currentNumber;
-                        else
-                            Entered_Number = "Error"; // Simple error handling
-                        break;
+                    return parsed.ToString(_calculatorCulture);
                 }
 
-                Entered_Number = _result.ToString();
+                return result;
             }
         }
 
@@ -187,6 +248,8 @@ namespace Calculator.ViewModels
             _enteredKeys.Add(Entered_Number);
             UpdateEnteredKeysOnGui();
             _isResultDisplayed = true;
+           
+            _isFirstNumberEntered = false;
         }
 
         private void ProcessOperator(string operatorSymbol)
@@ -201,13 +264,17 @@ namespace Calculator.ViewModels
                 _ => _selectedFunction
             };
 
-            // If the previous key was an operator, replace it
+            if (_isResultDisplayed)
+            {
+                _enteredKeys.Clear();
+                _enteredKeys.Add(Entered_Number); 
+            }
+
             if (OPERATORS.Contains(PreviousEnteredKey) && _enteredKeys.Count > 0)
             {
                 _enteredKeys.RemoveAt(_enteredKeys.Count - 1);
             }
 
-            // Add the new operator
             if (operatorSymbol != "=")
             {
                 _enteredKeys.Add(operatorSymbol);
@@ -220,8 +287,13 @@ namespace Calculator.ViewModels
             }
             else
             {
-                PerformCalculation();
+                if (!_isResultDisplayed || _isFirstNumberEntered)
+                {
+                    PerformCalculation();
+                }
+
                 _selectedFunction = functionName;
+                _isResultDisplayed = false; 
             }
 
             PreviousEnteredKey = operatorSymbol;
@@ -230,7 +302,6 @@ namespace Calculator.ViewModels
 
         private bool ProcessDigit(string digit)
         {
-            // If we're showing a result and start typing a new number, clear the previous result
             if (_isResultDisplayed)
             {
                 _enteredKeys.Clear();
@@ -238,18 +309,15 @@ namespace Calculator.ViewModels
                 _isFirstNumberEntered = true;
             }
 
-            // If we pressed a function previously, we're starting a new number
             if (_isFunctionPressed)
             {
                 Entered_Number = "";
                 _isFunctionPressed = false;
             }
 
-            // Handle special case for decimal point
             if (digit == "." && Entered_Number.Contains("."))
                 return false;
 
-            // Update the entered number
             if (Entered_Number == "0" && digit != ".")
             {
                 Entered_Number = digit;
@@ -266,25 +334,21 @@ namespace Calculator.ViewModels
             return true;
         }
 
-        #endregion
-
         public void GetPressedButton(string pressedButton)
         {
-            // Handle digits and decimal point
+
             if (DIGITS.Contains(pressedButton))
             {
                 ProcessDigit(pressedButton);
                 return;
             }
 
-            // Handle operators
             if (OPERATORS.Contains(pressedButton))
             {
                 ProcessOperator(pressedButton);
                 return;
             }
 
-            // Handle special functions
             switch (pressedButton)
             {
                 case "C":
@@ -293,6 +357,10 @@ namespace Calculator.ViewModels
                     break;
                 case "D":
                     Delete();
+                    PreviousEnteredKey = pressedButton;
+                    break;
+                case "CE":
+                    ClearEntry();
                     PreviousEnteredKey = pressedButton;
                     break;
             }
