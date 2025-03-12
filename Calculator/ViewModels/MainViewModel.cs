@@ -216,6 +216,19 @@ namespace Calculator.ViewModels
             _isResultDisplayed = false;
             _isFunctionPressed = false;
         }
+        private void DivOne()
+        {
+
+            double value = double.Parse(Entered_Number, _calculatorCulture);
+            value= value / 1;
+           
+            Entered_Number = value.ToString(_calculatorCulture);
+            
+            _enteredKeys.Add("/1");
+            UpdateEnteredKeysOnGui();
+            _isResultDisplayed = true;
+
+        }
 
         private void OneDividedByX()
         {
@@ -437,6 +450,10 @@ namespace Calculator.ViewModels
                     break;
                 case "1/x":
                     OneDividedByX();
+                    PreviousEnteredKey = pressedButton;
+                    break;
+                case "%":
+                    DivOne();
                     PreviousEnteredKey = pressedButton;
                     break;
             }
