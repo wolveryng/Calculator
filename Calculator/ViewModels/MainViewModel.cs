@@ -55,7 +55,6 @@ namespace Calculator.ViewModels
         private const string DIGITS = "0123456789.";
         private const string OPERATORS = "+-*/=";
 
-        // Use invariant culture to ensure consistent decimal point handling
         private static readonly CultureInfo _calculatorCulture = CultureInfo.InvariantCulture;
 
         public MainViewModel()
@@ -75,11 +74,9 @@ namespace Calculator.ViewModels
         {
             if (_enteredKeys.Count > 0)
             {
-                // Remove the last character
                 _enteredKeys.RemoveAt(_enteredKeys.Count - 1);
                 UpdateEnteredKeysOnGui();
 
-                // If we deleted an operator, we need to update the display to show the previous operand
                 string currentExpression = string.Join("", _enteredKeys);
                 string lastNumber = ExtractLastNumber(currentExpression);
 
@@ -120,11 +117,10 @@ namespace Calculator.ViewModels
             }
             else if (lastOperatorIndex == -1)
             {
-                // No operators found, return the entire expression
                 return expression;
             }
 
-            return "0"; // Default if we just have an operator
+            return "0"; 
         }
 
         private void Clear()
@@ -135,6 +131,11 @@ namespace Calculator.ViewModels
         private void SQRT()
         {
             Entered_Number = Math.Sqrt(double.Parse(Entered_Number)).ToString();
+            _enteredKeys.Clear();
+            _enteredKeys.Add("sqrt(" + Entered_Number.ToString(_calculatorCulture) + ")");
+            UpdateEnteredKeysOnGui();
+
+            _isResultDisplayed = true;
         }
 
         private void ClearEntry()
