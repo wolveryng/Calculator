@@ -132,13 +132,46 @@ namespace Calculator.ViewModels
         {
             Entered_Number = Math.Sqrt(double.Parse(Entered_Number)).ToString();
             _enteredKeys.Clear();
-            _enteredKeys.Add("sqrt(" + Entered_Number.ToString(_calculatorCulture) + ")");
+            _enteredKeys.Add("√(" + Entered_Number.ToString(_calculatorCulture) + ")");
             UpdateEnteredKeysOnGui();
 
             _isResultDisplayed = true;
         }
 
-        private void ClearEntry()
+        private void Power()
+        {
+            Entered_Number = Math.Pow(double.Parse(Entered_Number), 2).ToString();
+            _enteredKeys.Clear();
+            _enteredKeys.Add("sqr("+Entered_Number+")");
+            UpdateEnteredKeysOnGui();
+
+            _isResultDisplayed = true;
+        }
+
+        private void NegativePositive()
+        {
+            if (Entered_Number != "0")
+            {
+                if (Entered_Number.Contains("-"))
+                {
+                    Entered_Number = Entered_Number.Remove(0, 1);
+                    UpdateEnteredKeysOnGui();
+
+                    _isResultDisplayed = true;
+                }
+                else
+                {
+
+                    Entered_Number = "-" + Entered_Number;
+                    _enteredKeys.Add("negate(" + Entered_Number + ")");
+                    UpdateEnteredKeysOnGui();
+
+                    _isResultDisplayed = true;
+                }
+            }
+        }
+
+            private void ClearEntry()
         {
             if (_isResultDisplayed)
             {
@@ -184,6 +217,27 @@ namespace Calculator.ViewModels
             _isFunctionPressed = false;
         }
 
+        private void OneDividedByX()
+        {
+            if (Entered_Number != "0")
+            {
+                double value =double.Parse(Entered_Number, _calculatorCulture);
+                double valueToDisplay = value;
+                value = 1 / value;
+                Entered_Number = value.ToString(_calculatorCulture);
+
+                _enteredKeys.Clear();
+                _enteredKeys.Add("1 / (" + valueToDisplay + ")");
+                UpdateEnteredKeysOnGui();
+
+                _isResultDisplayed = false;
+
+            }
+            else
+            {
+                Entered_Number = "Nu se poate imparti la 0";
+            }
+        }
         private void PerformCalculation()
         {
             try
@@ -267,7 +321,7 @@ namespace Calculator.ViewModels
                 "*" => "Multiplication",
                 "/" => "Division",
                 "=" => "EqualTo",
-                _ => _selectedFunction
+                _ => ""
             };
 
             if (_isResultDisplayed)
@@ -371,6 +425,18 @@ namespace Calculator.ViewModels
                     break;
                 case "sqrt":
                     SQRT();
+                    PreviousEnteredKey = pressedButton;
+                    break;
+                case "power2":
+                    Power();
+                    PreviousEnteredKey = pressedButton;
+                    break;
+                case "+/-":
+                    NegativePositive();
+                    PreviousEnteredKey = pressedButton;
+                    break;
+                case "1/x":
+                    OneDividedByX();
                     PreviousEnteredKey = pressedButton;
                     break;
             }

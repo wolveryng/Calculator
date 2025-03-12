@@ -83,8 +83,8 @@
             <Button Grid.Column="5" Grid.Row="1" Content="C"        Background="#00ADB5" CommandParameter="C"/>
             <Button Grid.Column="7" Grid.Row="1" Content="DELETE"   Background="#00ADB5" CommandParameter="D"/>
 
-            <Button Grid.Column="1" Grid.Row="3" Content="1/X"      Background="#00ADB5" CommandParameter="Inca NU"/>
-            <Button Grid.Column="3" Grid.Row="3" Content="X^2"      Background="#00ADB5" CommandParameter="Inca NU" />
+            <Button Grid.Column="1" Grid.Row="3" Content="1/X"      Background="#00ADB5" CommandParameter="1/x"/>
+            <Button Grid.Column="3" Grid.Row="3" Content="X^2"      Background="#00ADB5" CommandParameter="power2" />
             <Button Grid.Column="5" Grid.Row="3" Content="SQRT X"   Background="#00ADB5" CommandParameter="sqrt"/>
             <Button Grid.Column="7" Grid.Row="3" Content="÷"        Background="#00ADB5" CommandParameter="/"/>
 
@@ -103,7 +103,7 @@
             <Button Grid.Column="5" Grid.Row="9" Content="3" CommandParameter="3" />
             <Button Grid.Column="7" Grid.Row="9" Content="+"        Background="#00ADB5" CommandParameter="+"/>
 
-            <Button Grid.Column="1" Grid.Row="11" Content="+/-"  CommandParameter="INCA NU"/>
+            <Button Grid.Column="1" Grid.Row="11" Content="+/-"  CommandParameter="+/-"/>
             <Button Grid.Column="3" Grid.Row="11" Content="0" CommandParameter="0"/>
             <Button Grid.Column="5" Grid.Row="11" Content="." CommandParameter="."/>
             <Button Grid.Column="7" Grid.Row="11" Content="="       Background="#00ADB5" CommandParameter="="/>
