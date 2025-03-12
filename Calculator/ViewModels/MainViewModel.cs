@@ -132,6 +132,11 @@ namespace Calculator.ViewModels
             ResetCalculator();
         }
 
+        private void SQRT()
+        {
+            Entered_Number = Math.Sqrt(double.Parse(Entered_Number)).ToString();
+        }
+
         private void ClearEntry()
         {
             if (_isResultDisplayed)
@@ -361,6 +366,10 @@ namespace Calculator.ViewModels
                     break;
                 case "CE":
                     ClearEntry();
+                    PreviousEnteredKey = pressedButton;
+                    break;
+                case "sqrt":
+                    SQRT();
                     PreviousEnteredKey = pressedButton;
                     break;
             }

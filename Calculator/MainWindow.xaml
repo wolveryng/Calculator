@@ -85,7 +85,7 @@
 
             <Button Grid.Column="1" Grid.Row="3" Content="1/X"      Background="#00ADB5" CommandParameter="Inca NU"/>
             <Button Grid.Column="3" Grid.Row="3" Content="X^2"      Background="#00ADB5" CommandParameter="Inca NU" />
-            <Button Grid.Column="5" Grid.Row="3" Content="SQRT X"   Background="#00ADB5" CommandParameter="Inca NU"/>
+            <Button Grid.Column="5" Grid.Row="3" Content="SQRT X"   Background="#00ADB5" CommandParameter="sqrt"/>
             <Button Grid.Column="7" Grid.Row="3" Content="÷"        Background="#00ADB5" CommandParameter="/"/>
 
             <Button Grid.Column="1" Grid.Row="5" Content="7"  CommandParameter="7"/>
