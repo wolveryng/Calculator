@@ -1,8 +1,11 @@
 ﻿using Calculator.Commands;
+using Calculator.Models;
+using Calculator.Views;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Windows;
 
 namespace Calculator.ViewModels
 {
@@ -37,6 +40,40 @@ namespace Calculator.ViewModels
             }
         }
 
+
+
+        private List<MemoryHistoryItem> _memoryHistory = new List<MemoryHistoryItem>();
+        public List<MemoryHistoryItem> MemoryHistory
+        {
+            get { return _memoryHistory; }
+        }
+
+        private double _memoryValue = 0;
+        public double MemoryValue
+        {
+            get { return _memoryValue; }
+            set
+            {
+                _memoryValue = value;
+                OnPropertyChanged(nameof(MemoryValue));
+                OnPropertyChanged(nameof(HasMemoryValue));
+            }
+        }
+
+        public bool HasMemoryValue => _memoryHistory.Count > 0;
+
+        private string _memoryIndicator = "";
+        public string MemoryIndicator
+        {
+            get { return _memoryIndicator; }
+            set
+            {
+                _memoryIndicator = value;
+                OnPropertyChanged(nameof(MemoryIndicator));
+            }
+        }
+
+
         private ButtonPressedCommand _buttonPressedCommand;
         public ButtonPressedCommand ButtonPressedCommand
         {
@@ -54,6 +91,8 @@ namespace Calculator.ViewModels
 
         private const string DIGITS = "0123456789.";
         private const string OPERATORS = "+-*/=";
+
+        private Window _mainWindow;
 
         private static readonly CultureInfo _calculatorCulture = CultureInfo.InvariantCulture;
 
@@ -163,7 +202,7 @@ namespace Calculator.ViewModels
                 {
 
                     Entered_Number = "-" + Entered_Number;
-                    _enteredKeys.Add("negate(" + Entered_Number + ")");
+                    _enteredKeys.Add(" negate(" + Entered_Number + ")");
                     UpdateEnteredKeysOnGui();
 
                     _isResultDisplayed = true;
@@ -407,6 +446,103 @@ namespace Calculator.ViewModels
             return true;
         }
 
+        #region All about memory
+        private void MemoryClear()
+        {
+            _memoryHistory.Clear();
+            MemoryValue = 0;
+            MemoryIndicator = "";
+            OnPropertyChanged(nameof(HasMemoryValue));
+        }
+
+        private void MemoryRecall()
+        {
+            if (_memoryHistory.Count > 0)
+            {
+                // Use the most recent memory value
+                MemoryValue = _memoryHistory[_memoryHistory.Count - 1].Value;
+                Entered_Number = FormatResult(MemoryValue);
+
+                _isResultDisplayed = true;
+
+                _enteredKeys.Clear();
+                _enteredKeys.Add(Entered_Number);
+                UpdateEnteredKeysOnGui();
+                
+            }
+        }
+
+        private void MemoryStore()
+        {
+            double value;
+            if (double.TryParse(Entered_Number, NumberStyles.Float, _calculatorCulture, out value))
+            {
+                MemoryValue = value;
+                _memoryHistory.Add(new MemoryHistoryItem(value, $"MS: {value}"));
+                MemoryIndicator = "M";
+                _enteredKeys.Add(" MS(" + value + ")");
+                UpdateEnteredKeysOnGui();
+                OnPropertyChanged(nameof(HasMemoryValue));
+            }
+        }
+
+        private void MemoryAdd()
+        {
+            double value;
+            if (double.TryParse(Entered_Number, NumberStyles.Float, _calculatorCulture, out value))
+            {
+                MemoryValue += value;
+                _memoryHistory.Add(new MemoryHistoryItem(MemoryValue, $"M+: {value}"));
+                MemoryIndicator = "M";
+                _enteredKeys.Add(" M+(" + value + ")");
+                UpdateEnteredKeysOnGui();
+                OnPropertyChanged(nameof(HasMemoryValue));
+            }
+        }
+
+        private void MemorySubtract()
+        {
+            double value;
+            if (double.TryParse(Entered_Number, NumberStyles.Float, _calculatorCulture, out value))
+            {
+                MemoryValue -= value;
+                _memoryHistory.Add(new MemoryHistoryItem(MemoryValue, $"M-: {value}"));
+                MemoryIndicator = "M";
+                _enteredKeys.Add(" M-(" + value + ")");
+                UpdateEnteredKeysOnGui();
+                OnPropertyChanged(nameof(HasMemoryValue));
+            }
+        }
+
+        private void ShowMemoryHistory()
+        {
+            if (_memoryHistory.Count > 0)
+            {
+                var memoryWindow = new MemoryHistoryWindow(_memoryHistory);
+                memoryWindow.Owner = _mainWindow;
+
+                bool? result = memoryWindow.ShowDialog();
+
+                if (result == true && memoryWindow.UseSelectedValue && memoryWindow.SelectedMemoryItem != null)
+                {
+                    // Use the selected memory value
+                    MemoryValue = memoryWindow.SelectedMemoryItem.Value;
+                    Entered_Number = FormatResult(MemoryValue);
+                    _enteredKeys.Clear();
+                    _enteredKeys.Add(Entered_Number);
+                    UpdateEnteredKeysOnGui();
+                    _result = MemoryValue;
+                    _isFirstNumberEntered = true;
+                    _isResultDisplayed = true;
+                }
+            }
+            else
+            {
+                MessageBox.Show("No memory values stored", "Memory Empty", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+        #endregion
+
         public void GetPressedButton(string pressedButton)
         {
 
@@ -454,6 +590,31 @@ namespace Calculator.ViewModels
                     break;
                 case "%":
                     DivOne();
+                    PreviousEnteredKey = pressedButton;
+                    break;
+                case "MC":
+                    MemoryClear();
+                    PreviousEnteredKey = pressedButton;
+                    break;
+                case "MR":
+                    MemoryRecall();
+                    PreviousEnteredKey = pressedButton;
+                    break;
+                case "MS":
+                    MemoryStore();
+                    PreviousEnteredKey = pressedButton;
+                    _isResultDisplayed = true;
+                    break;
+                case "M+":
+                    MemoryAdd();
+                    PreviousEnteredKey = pressedButton;
+                    break;
+                case "M-":
+                    MemorySubtract();
+                    PreviousEnteredKey = pressedButton;
+                    break;
+                case "M":
+                    ShowMemoryHistory();
                     PreviousEnteredKey = pressedButton;
                     break;
             }
