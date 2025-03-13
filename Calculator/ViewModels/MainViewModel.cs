@@ -631,5 +631,28 @@ namespace Calculator.ViewModels
                     break;
             }
         }
+        public void PasteValue(string value)
+        {
+            if (_isResultDisplayed)
+            {
+                _enteredKeys.Clear();
+                _isResultDisplayed = false;
+                _isFirstNumberEntered = true;
+            }
+
+            if (_isFunctionPressed)
+            {
+                Entered_Number = "";
+                _isFunctionPressed = false;
+            }
+
+            Entered_Number = value;
+
+            _enteredKeys.Clear();
+            _enteredKeys.Add(value);
+            UpdateEnteredKeysOnGui();
+
+            PreviousEnteredKey = "0";
+        }
     }
 }
