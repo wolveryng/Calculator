@@ -37,9 +37,21 @@ namespace Calculator.ViewModels
             {
                 _enteredNumber = value;
                 OnPropertyChanged(nameof(Entered_Number));
+                OnPropertyChanged("FormattedNumber");
             }
         }
 
+        public string FormattedNumber
+        {
+            get
+            {
+                if (double.TryParse(Entered_Number, out double value))
+                {
+                    return string.Format("{0:N0}", value);
+                }
+                return Entered_Number;
+            }
+        }
 
 
         private List<MemoryHistoryItem> _memoryHistory = new List<MemoryHistoryItem>();
