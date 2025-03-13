@@ -30,7 +30,11 @@ namespace Calculator
             this.DataContext = new MainViewModel();
            
             Loaded += (s, e) => Focus();
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Cut, (s, e) => CutToClipboard()));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Copy, (s, e) => CopyToClipboard()));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Paste, (s, e) => PasteFromClipboard()));
         }
+    
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.LeftCtrl || e.Key == Key.RightCtrl)
@@ -137,6 +141,10 @@ namespace Calculator
                     ViewModel.GetPressedButton("D");  
                     e.Handled = true;
                     break;
+                case Key.Escape:
+                    ViewModel.GetPressedButton("C");
+                    e.Handled = true;
+                    break;
             }
         }
         private void Window_KeyUp(object sender, KeyEventArgs e)
@@ -191,5 +199,16 @@ namespace Calculator
                 MessageBox.Show($"Error cutting to clipboard: {ex.Message}", "Cut Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void MenuExit_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void MenuAbout_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Borsan Iulian\n10LF231", "Calculator by", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
     }
 }

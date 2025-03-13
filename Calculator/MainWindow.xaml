@@ -16,12 +16,28 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
+    <DockPanel>
+
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="File">
+                <MenuItem Header="Cut" Command="ApplicationCommands.Cut" InputGestureText="Ctrl+X"/>
+                <MenuItem Header="Copy" Command="ApplicationCommands.Copy" InputGestureText="Ctrl+C"/>
+                <MenuItem Header="Paste" Command="ApplicationCommands.Paste" InputGestureText="Ctrl+V"/>
+                <Separator/>
+                <MenuItem Header="Exit" Click="MenuExit_Click"/>
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="About" Click="MenuAbout_Click"/>
+            </MenuItem>
+        </Menu>
+        
+        <Grid>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="90"/>
             <RowDefinition Height="90"/>
             <RowDefinition Height="40"/>
-            <RowDefinition/>
+            <RowDefinition />
         </Grid.RowDefinitions>
         <TextBlock Text="{Binding Path=KeyPressedString}" VerticalAlignment="Bottom"
                    HorizontalAlignment="Right" FontWeight="Bold"/>
@@ -112,4 +128,5 @@
         </Grid>
 
     </Grid>
+    </DockPanel>
 </Window>
