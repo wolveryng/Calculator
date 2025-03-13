@@ -492,11 +492,17 @@ namespace Calculator.ViewModels
             if (double.TryParse(Entered_Number, NumberStyles.Float, _calculatorCulture, out value))
             {
                 MemoryValue += value;
-                _memoryHistory.Add(new MemoryHistoryItem(MemoryValue, $"M+: {value}"));
+
+                _memoryHistory.Add(new MemoryHistoryItem(MemoryValue, $"M+: Added {value}"));
+
                 MemoryIndicator = "M";
+
                 _enteredKeys.Add(" M+(" + value + ")");
                 UpdateEnteredKeysOnGui();
+
                 OnPropertyChanged(nameof(HasMemoryValue));
+
+                _isResultDisplayed = true;
             }
         }
 
@@ -506,11 +512,18 @@ namespace Calculator.ViewModels
             if (double.TryParse(Entered_Number, NumberStyles.Float, _calculatorCulture, out value))
             {
                 MemoryValue -= value;
-                _memoryHistory.Add(new MemoryHistoryItem(MemoryValue, $"M-: {value}"));
+
+                _memoryHistory.Add(new MemoryHistoryItem(MemoryValue, $"M-: Subtracted {value}"));
+
                 MemoryIndicator = "M";
+
+
                 _enteredKeys.Add(" M-(" + value + ")");
                 UpdateEnteredKeysOnGui();
+
                 OnPropertyChanged(nameof(HasMemoryValue));
+
+                _isResultDisplayed = true;
             }
         }
 
@@ -525,7 +538,6 @@ namespace Calculator.ViewModels
 
                 if (result == true && memoryWindow.UseSelectedValue && memoryWindow.SelectedMemoryItem != null)
                 {
-                    // Use the selected memory value
                     MemoryValue = memoryWindow.SelectedMemoryItem.Value;
                     Entered_Number = FormatResult(MemoryValue);
                     _enteredKeys.Clear();
