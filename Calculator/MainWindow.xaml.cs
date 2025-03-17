@@ -145,6 +145,10 @@ namespace Calculator
                     ViewModel.GetPressedButton("C");
                     e.Handled = true;
                     break;
+                case Key.OemPeriod:
+                    ViewModel.GetPressedButton(".");
+                    e.Handled = true;
+                    break;
             }
         }
         private void Window_KeyUp(object sender, KeyEventArgs e)
