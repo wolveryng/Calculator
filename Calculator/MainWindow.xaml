@@ -41,7 +41,7 @@
         </Grid.RowDefinitions>
         <TextBlock Text="{Binding Path=KeyPressedString}" VerticalAlignment="Bottom"
                    HorizontalAlignment="Right" FontWeight="Bold"/>
-        <TextBlock Text="{Binding Path=FormattedNumber}" VerticalAlignment="Bottom"
+        <TextBlock Text="{Binding Path=Entered_Number}" VerticalAlignment="Bottom"
                    HorizontalAlignment="Right" FontSize="50" FontWeight="Bold"
                    Grid.Row="1"/>
         <Grid Grid.Row="2" Background="#EEEEEE">
