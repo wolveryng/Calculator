@@ -89,12 +89,12 @@ namespace Calculator.ViewModels
         private string _selectedFunction = "";
         public string PreviousEnteredKey { get; private set; } = "";
 
-        private const string DIGITS = "0123456789.";
+        private const string DIGITS = "0123456789,";
         private const string OPERATORS = "+-*/=";
 
         private Window _mainWindow;
 
-        private static readonly CultureInfo _calculatorCulture = CultureInfo.InvariantCulture;
+        private static readonly CultureInfo _calculatorCulture = CultureInfo.CurrentCulture;
 
         public MainViewModel()
         {
@@ -338,7 +338,7 @@ namespace Calculator.ViewModels
         {
             if (value == Math.Floor(value))
             {
-                return value.ToString("0", _calculatorCulture);
+                return value.ToString("0", CultureInfo.CurrentCulture);
             }
             else
             {
@@ -346,7 +346,8 @@ namespace Calculator.ViewModels
 
                 if (double.TryParse(result, NumberStyles.Float, _calculatorCulture, out double parsed))
                 {
-                    return parsed.ToString(_calculatorCulture);
+                    return parsed.ToString(CultureInfo.CurrentCulture);
+
                 }
 
                 return result;
@@ -427,7 +428,7 @@ namespace Calculator.ViewModels
                 _isFunctionPressed = false;
             }
 
-            if (digit == "." && Entered_Number.Contains("."))
+            if (digit == "," && Entered_Number.Contains(","))
                 return false;
 
             if (Entered_Number == "0" && digit != ".")

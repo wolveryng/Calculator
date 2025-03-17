@@ -121,7 +121,7 @@
 
             <Button Grid.Column="1" Grid.Row="11" Content="+/-"  CommandParameter="+/-"/>
             <Button Grid.Column="3" Grid.Row="11" Content="0" CommandParameter="0"/>
-            <Button Grid.Column="5" Grid.Row="11" Content="." CommandParameter="."/>
+            <Button Grid.Column="5" Grid.Row="11" Content="," CommandParameter=","/>
             <Button Grid.Column="7" Grid.Row="11" Content="="       Background="#00ADB5" CommandParameter="="/>
             
             
