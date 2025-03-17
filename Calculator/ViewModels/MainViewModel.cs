@@ -428,10 +428,16 @@ namespace Calculator.ViewModels
                 _isFunctionPressed = false;
             }
 
+            string currentNumber = Entered_Number.Replace(",", "");
+            if (currentNumber.Length >= 10)
+            {
+                return false; 
+            }
+
             if (digit == "," && Entered_Number.Contains(","))
                 return false;
 
-            if (Entered_Number == "0" && digit != ".")
+            if (Entered_Number == "0" && digit != ",")
             {
                 Entered_Number = digit;
             }
