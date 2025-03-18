@@ -37,10 +37,19 @@ namespace Calculator.ViewModels
             {
                 _enteredNumber = value;
                 OnPropertyChanged(nameof(Entered_Number));
-                
             }
         }
 
+        private string _formattedDisplay = "0";
+        public string FormattedDisplay
+        {
+            get { return _formattedDisplay; }
+            set
+            {
+                _formattedDisplay = value;
+                OnPropertyChanged(nameof(FormattedDisplay));
+            }
+        }
 
         private List<MemoryHistoryItem> _memoryHistory = new List<MemoryHistoryItem>();
         public List<MemoryHistoryItem> MemoryHistory
@@ -73,7 +82,6 @@ namespace Calculator.ViewModels
             }
         }
 
-
         private ButtonPressedCommand _buttonPressedCommand;
         public ButtonPressedCommand ButtonPressedCommand
         {
@@ -95,10 +103,12 @@ namespace Calculator.ViewModels
         private Window _mainWindow;
 
         private static readonly CultureInfo _calculatorCulture = CultureInfo.CurrentCulture;
+        private readonly NumberFormatInfo _numberFormat = _calculatorCulture.NumberFormat;
 
         public MainViewModel()
         {
             Entered_Number = "0";
+            FormattedDisplay = "0";
             KeyPressedString = "";
             _enteredKeys = new List<string>();
             ButtonPressedCommand = new ButtonPressedCommand(this);
@@ -107,6 +117,34 @@ namespace Calculator.ViewModels
         private void UpdateEnteredKeysOnGui()
         {
             KeyPressedString = string.Join("", _enteredKeys);
+        }
+
+        private string FormatNumberWithGrouping(string number)
+        {
+            if (string.IsNullOrEmpty(number) || number == "-")
+                return number;
+
+            bool isNegative = number.StartsWith("-");
+            if (isNegative)
+                number = number.Substring(1);
+
+            string decimalSeparator = _numberFormat.NumberDecimalSeparator;
+            string[] parts = number.Split(new[] { ',' }, StringSplitOptions.None);
+
+            string integerPart = parts[0];
+            string decimalPart = parts.Length > 1 ? "," + parts[1] : "";
+
+            if (double.TryParse(integerPart, NumberStyles.Integer, _calculatorCulture, out double value))
+            {
+                integerPart = value.ToString("N0", _calculatorCulture);
+            }
+
+            return (isNegative ? "-" : "") + integerPart + decimalPart;
+        }
+
+        private void UpdateDisplay()
+        {
+            FormattedDisplay = FormatNumberWithGrouping(Entered_Number);
         }
 
         private void Delete()
@@ -122,6 +160,7 @@ namespace Calculator.ViewModels
                 if (!string.IsNullOrEmpty(lastNumber))
                 {
                     Entered_Number = lastNumber;
+                    UpdateDisplay();
                 }
                 else if (_enteredKeys.Count == 0)
                 {
@@ -159,7 +198,7 @@ namespace Calculator.ViewModels
                 return expression;
             }
 
-            return "0"; 
+            return "0";
         }
 
         private void Clear()
@@ -170,6 +209,7 @@ namespace Calculator.ViewModels
         private void SQRT()
         {
             Entered_Number = Math.Sqrt(double.Parse(Entered_Number)).ToString();
+            UpdateDisplay();
             _enteredKeys.Clear();
             _enteredKeys.Add("√(" + Entered_Number.ToString(_calculatorCulture) + ")");
             UpdateEnteredKeysOnGui();
@@ -180,8 +220,9 @@ namespace Calculator.ViewModels
         private void Power()
         {
             Entered_Number = Math.Pow(double.Parse(Entered_Number), 2).ToString();
+            UpdateDisplay();
             _enteredKeys.Clear();
-            _enteredKeys.Add("sqr("+Entered_Number+")");
+            _enteredKeys.Add("sqr(" + Entered_Number + ")");
             UpdateEnteredKeysOnGui();
 
             _isResultDisplayed = true;
@@ -194,14 +235,15 @@ namespace Calculator.ViewModels
                 if (Entered_Number.Contains("-"))
                 {
                     Entered_Number = Entered_Number.Remove(0, 1);
+                    UpdateDisplay();
                     UpdateEnteredKeysOnGui();
 
                     _isResultDisplayed = true;
                 }
                 else
                 {
-
                     Entered_Number = "-" + Entered_Number;
+                    UpdateDisplay();
                     _enteredKeys.Add(" negate(" + Entered_Number + ")");
                     UpdateEnteredKeysOnGui();
 
@@ -210,7 +252,7 @@ namespace Calculator.ViewModels
             }
         }
 
-            private void ClearEntry()
+        private void ClearEntry()
         {
             if (_isResultDisplayed)
             {
@@ -236,7 +278,7 @@ namespace Calculator.ViewModels
                 UpdateEnteredKeysOnGui();
 
                 Entered_Number = "0";
-
+                UpdateDisplay();
             }
             else
             {
@@ -245,51 +287,55 @@ namespace Calculator.ViewModels
 
             _isFunctionPressed = lastOperatorIndex >= 0;
         }
+
         private void ResetCalculator()
         {
             _enteredKeys.Clear();
             KeyPressedString = "";
             Entered_Number = "0";
+            FormattedDisplay = "0";
             _result = 0;
             _isFirstNumberEntered = true;
             _isResultDisplayed = false;
             _isFunctionPressed = false;
         }
+
         private void DivOne()
         {
-
             double value = double.Parse(Entered_Number, _calculatorCulture);
-            value= value / 1;
-           
+            value = value / 1;
+
             Entered_Number = value.ToString(_calculatorCulture);
-            
+            UpdateDisplay();
+
             _enteredKeys.Add("/1");
             UpdateEnteredKeysOnGui();
             _isResultDisplayed = true;
-
         }
 
         private void OneDividedByX()
         {
             if (Entered_Number != "0")
             {
-                double value =double.Parse(Entered_Number, _calculatorCulture);
+                double value = double.Parse(Entered_Number, _calculatorCulture);
                 double valueToDisplay = value;
                 value = 1 / value;
                 Entered_Number = value.ToString(_calculatorCulture);
+                UpdateDisplay();
 
                 _enteredKeys.Clear();
                 _enteredKeys.Add("1 / (" + valueToDisplay + ")");
                 UpdateEnteredKeysOnGui();
 
                 _isResultDisplayed = false;
-
             }
             else
             {
                 Entered_Number = "Nu se poate imparti la 0";
+                FormattedDisplay = Entered_Number;
             }
         }
+
         private void PerformCalculation()
         {
             try
@@ -320,17 +366,20 @@ namespace Calculator.ViewModels
                             else
                             {
                                 Entered_Number = "Error";
+                                FormattedDisplay = Entered_Number;
                                 return;
                             }
                             break;
                     }
 
                     Entered_Number = FormatResult(_result);
+                    UpdateDisplay();
                 }
             }
             catch (Exception)
             {
                 Entered_Number = "Error";
+                FormattedDisplay = Entered_Number;
             }
         }
 
@@ -347,7 +396,6 @@ namespace Calculator.ViewModels
                 if (double.TryParse(result, NumberStyles.Float, _calculatorCulture, out double parsed))
                 {
                     return parsed.ToString(CultureInfo.CurrentCulture);
-
                 }
 
                 return result;
@@ -361,7 +409,7 @@ namespace Calculator.ViewModels
             _enteredKeys.Add(Entered_Number);
             UpdateEnteredKeysOnGui();
             _isResultDisplayed = true;
-           
+
             _isFirstNumberEntered = false;
         }
 
@@ -380,7 +428,7 @@ namespace Calculator.ViewModels
             if (_isResultDisplayed)
             {
                 _enteredKeys.Clear();
-                _enteredKeys.Add(Entered_Number); 
+                _enteredKeys.Add(Entered_Number);
             }
 
             if (OPERATORS.Contains(PreviousEnteredKey) && _enteredKeys.Count > 0)
@@ -406,7 +454,7 @@ namespace Calculator.ViewModels
                 }
 
                 _selectedFunction = functionName;
-                _isResultDisplayed = false; 
+                _isResultDisplayed = false;
             }
 
             PreviousEnteredKey = operatorSymbol;
@@ -431,7 +479,7 @@ namespace Calculator.ViewModels
             string currentNumber = Entered_Number.Replace(",", "");
             if (currentNumber.Length >= 10)
             {
-                return false; 
+                return false;
             }
 
             if (digit == "," && Entered_Number.Contains(","))
@@ -445,6 +493,8 @@ namespace Calculator.ViewModels
             {
                 Entered_Number += digit;
             }
+
+            UpdateDisplay();
 
             _enteredKeys.Add(digit);
             UpdateEnteredKeysOnGui();
@@ -466,16 +516,15 @@ namespace Calculator.ViewModels
         {
             if (_memoryHistory.Count > 0)
             {
-                // Use the most recent memory value
                 MemoryValue = _memoryHistory[_memoryHistory.Count - 1].Value;
                 Entered_Number = FormatResult(MemoryValue);
+                UpdateDisplay();
 
                 _isResultDisplayed = true;
 
                 _enteredKeys.Clear();
                 _enteredKeys.Add(Entered_Number);
                 UpdateEnteredKeysOnGui();
-                
             }
         }
 
@@ -524,7 +573,6 @@ namespace Calculator.ViewModels
 
                 MemoryIndicator = "M";
 
-
                 _enteredKeys.Add(" M-(" + value + ")");
                 UpdateEnteredKeysOnGui();
 
@@ -547,6 +595,7 @@ namespace Calculator.ViewModels
                 {
                     MemoryValue = memoryWindow.SelectedMemoryItem.Value;
                     Entered_Number = FormatResult(MemoryValue);
+                    UpdateDisplay();
                     _enteredKeys.Clear();
                     _enteredKeys.Add(Entered_Number);
                     UpdateEnteredKeysOnGui();
@@ -564,7 +613,6 @@ namespace Calculator.ViewModels
 
         public void GetPressedButton(string pressedButton)
         {
-
             if (DIGITS.Contains(pressedButton))
             {
                 ProcessDigit(pressedButton);
@@ -638,6 +686,7 @@ namespace Calculator.ViewModels
                     break;
             }
         }
+
         public void PasteValue(string value)
         {
             if (_isResultDisplayed)
@@ -654,6 +703,7 @@ namespace Calculator.ViewModels
             }
 
             Entered_Number = value;
+            UpdateDisplay();
 
             _enteredKeys.Clear();
             _enteredKeys.Add(value);
